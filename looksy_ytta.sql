@@ -16,22 +16,86 @@
 
 
 -- Dumping database structure for looksy_ytta
-DROP DATABASE IF EXISTS `looksy_ytta`;
 CREATE DATABASE IF NOT EXISTS `looksy_ytta` /*!40100 DEFAULT CHARACTER SET armscii8 COLLATE armscii8_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `looksy_ytta`;
 
+-- Dumping structure for table looksy_ytta.cart_items
+CREATE TABLE IF NOT EXISTS `cart_items` (
+  `quantity` int NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `product_id` bigint NOT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK1vhvont0fdtramle6nmghntj7` (`user_id`,`product_id`),
+  KEY `FK1re40cjegsfvw58xrkdp6bac6` (`product_id`),
+  CONSTRAINT `FK1re40cjegsfvw58xrkdp6bac6` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `FK709eickf3kc0dujx3ub9i7btf` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+
+-- Dumping data for table looksy_ytta.cart_items: ~0 rows (approximately)
+
+-- Dumping structure for table looksy_ytta.orders
+CREATE TABLE IF NOT EXISTS `orders` (
+  `total_amount` decimal(10,2) NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_date` datetime(6) NOT NULL,
+  `user_id` bigint NOT NULL,
+  `status` enum('CANCELLED','COMPLETED','PENDING','PROCESSING') COLLATE armscii8_bin NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK32ql8ubntj5uh44ph9659tiih` (`user_id`),
+  CONSTRAINT `FK32ql8ubntj5uh44ph9659tiih` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+
+-- Dumping data for table looksy_ytta.orders: ~0 rows (approximately)
+
+-- Dumping structure for table looksy_ytta.order_items
+CREATE TABLE IF NOT EXISTS `order_items` (
+  `price_at_purchase` decimal(10,2) NOT NULL,
+  `quantity` int NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL,
+  `product_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKbioxgbv59vetrxe0ejfubep1w` (`order_id`),
+  KEY `FKocimc7dtr037rh4ls4l95nlfi` (`product_id`),
+  CONSTRAINT `FKbioxgbv59vetrxe0ejfubep1w` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  CONSTRAINT `FKocimc7dtr037rh4ls4l95nlfi` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+
+-- Dumping data for table looksy_ytta.order_items: ~0 rows (approximately)
+
+-- Dumping structure for table looksy_ytta.products
+CREATE TABLE IF NOT EXISTS `products` (
+  `price` decimal(10,2) NOT NULL,
+  `stock` int NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `description` text COLLATE armscii8_bin,
+  `image_url` varchar(255) COLLATE armscii8_bin DEFAULT NULL,
+  `name` varchar(255) COLLATE armscii8_bin NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+
+-- Dumping data for table looksy_ytta.products: ~0 rows (approximately)
+REPLACE INTO `products` (`price`, `stock`, `id`, `description`, `image_url`, `name`) VALUES
+	(90000.00, 90, 1, 'baju', '', 'baju'),
+	(800.00, 90, 2, 'celana', '', 'celana ');
+
 -- Dumping structure for table looksy_ytta.users
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) COLLATE armscii8_bin NOT NULL,
   `username` varchar(100) COLLATE armscii8_bin NOT NULL,
   `password` varchar(255) COLLATE armscii8_bin NOT NULL,
-  `email` varchar(100) COLLATE armscii8_bin NOT NULL,
   `role` enum('ADMIN','USER') COLLATE armscii8_bin NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
+  UNIQUE KEY `UKr43af9ap4edm43mmtq01oddj6` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
 
--- Data exporting was unselected.
+-- Dumping data for table looksy_ytta.users: ~2 rows (approximately)
+REPLACE INTO `users` (`id`, `email`, `username`, `password`, `role`) VALUES
+	(1, 'admin123@gmail.com', 'admin', '$2a$10$oDOK4Rei4ufFk/0kisUcZuxYnkJ4U1ChIyZDCjAOzFZRKAVOl.ymq', 'ADMIN'),
+	(2, 'zaynanindira@gamil.com', 'xxyeblee', '$2a$10$WAkWH0bEw1QlmrNITfJwEO/pChEAbKrfm1CPkslp4Tf2gbk1UG73.', 'USER');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -63,6 +63,25 @@
         a:hover {
             text-decoration: underline;
         }
+        .user-options ul {
+            list-style: none;
+            padding: 0;
+        }
+        .user-options li {
+            margin-bottom: 10px;
+        }
+        .user-options a {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .user-options a:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -81,7 +100,14 @@
         <p>You can view your profile information, manage your settings, etc.</p>
         <p>Your role: <span sec:authentication="principal.authorities">ROLE_USER</span></p>
 
-        <p>Check out our <a href="#">latest updates</a>.</p>
+        <div class="user-options">
+            <h2>Your Options</h2>
+            <ul>
+                <li><a th:href="@{/user/products}">Browse Products</a></li>
+                <li><a th:href="@{/user/cart}">View Shopping Cart</a></li>
+                <li><a th:href="@{/user/orders}">View Your Orders</a></li>
+                </ul>
+        </div>
     </div>
 </body>
 </html>

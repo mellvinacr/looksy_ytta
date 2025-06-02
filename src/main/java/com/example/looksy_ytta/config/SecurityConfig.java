@@ -4,7 +4,6 @@ import com.example.looksy_ytta.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,9 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler; // Pastikan ini terimport
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.util.List; // Pastikan List terimport jika digunakan untuk SimpleGrantedAuthority
+import java.util.List;
 
 
 @Configuration
@@ -26,9 +25,8 @@ import java.util.List; // Pastikan List terimport jika digunakan untuk SimpleGra
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler; 
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    // Modifikasi konstruktor untuk menerima CustomAuthenticationSuccessHandler
     public SecurityConfig(UserRepository userRepository, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.userRepository = userRepository;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
@@ -50,18 +48,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Bean DaoAuthenticationProvider ini opsional di Spring Security 6+
-    // Spring akan otomatis mendeteksi UserDetailsService dan PasswordEncoder sebagai Bean
-    /*
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-    */
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
@@ -70,24 +56,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable) // Pertimbangkan untuk mengaktifkannya dan mengelola token CSRF untuk form
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/auth/**", "/register", "/login", "/").permitAll() // Halaman yang bisa diakses tanpa otentikasi
-                .requestMatchers("/admin/**").hasRole("ADMIN") // Hanya admin yang bisa akses
-                .requestMatchers("/user/**").hasRole("USER")   // Hanya user biasa yang bisa akses
-                .anyRequest().authenticated() // Semua request lain harus terotentikasi
+                .requestMatchers("/api/auth/**", "/register", "/login", "/", "/products").permitAll() // Added /products to be accessible
+                .requestMatchers("/admin/**", "/api/admin/**", "/api/products/**").hasRole("ADMIN") // Admin API for products
+                .requestMatchers("/user/**", "/api/cart/**", "/api/orders/checkout", "/api/orders/my-orders").hasRole("USER")   // User API for cart and orders
+                .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login") // Halaman login kustom Anda
-                // Hapus baris .defaultSuccessUrl("/dashboard", true)
-                .successHandler(customAuthenticationSuccessHandler) // <--- GANTI dengan custom handler di sini
-                .failureUrl("/login?error=true") // Redirect jika login gagal
-                .permitAll() // Izinkan semua untuk mengakses form login
+                .loginPage("/login")
+                .successHandler(customAuthenticationSuccessHandler)
+                .failureUrl("/login?error=true")
+                .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout") // URL untuk proses logout
-                .logoutSuccessUrl("/login?logout=true") // Redirect setelah logout berhasil
-                .permitAll() // Izinkan semua untuk mengakses logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
             );
 
         return http.build();

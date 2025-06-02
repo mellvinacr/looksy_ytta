@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .header .user-info {
+            font-size: 1.1em;
+        }
+        .header form {
+            display: inline-block;
+            margin-left: 20px;
+        }
+        .header button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .header button:hover {
+            background-color: #c82333;
+        }
+        .content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .order-details-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #fefefe;
+        }
+        .order-details-card h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .order-details-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        .order-details-card li {
+            margin-bottom: 5px;
+        }
+        .message { /* Tambahkan style untuk message div */
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>My Orders</h1>
+        <div class="user-info">
+            Welcome, <span sec:authentication="name">User</span>!
+            <a th:href="@{/user/products}" style="color: white; text-decoration: none; margin-left: 20px;">Product Catalog</a>
+            <a th:href="@{/user/cart}" style="color: white; text-decoration: none; margin-left: 10px;">View Cart</a>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Your Order History</h2>
+        <div id="ordersList">
+            <p id="noOrdersMessage" style="text-align: center; display: none;">You have no orders yet.</p>
+        </div>
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchMyOrders);
+
+        async function fetchMyOrders() {
+            try {
+                const response = await fetch('/api/orders/my-orders');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders: ' + response.statusText);
+                }
+                const orders = await response.json();
+                const ordersListDiv = document.getElementById('ordersList');
+                ordersListDiv.innerHTML = '';
+
+                if (orders.length === 0) {
+                    document.getElementById('noOrdersMessage').style.display = 'block';
+                } else {
+                    document.getElementById('noOrdersMessage').style.display = 'none';
+                    orders.forEach(order => {
+                        // Pastikan totalAmount di-parse sebagai float untuk toFixed
+                        const totalAmountToDisplay = order.totalAmount ? parseFloat(order.totalAmount).toFixed(2) : '0.00';
+                        const orderCardHtml = `
+                            <div class="order-details-card">
+                                <h3>Order ID: ${order.id}</h3>
+                                <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
+                                <p><strong>Total Amount:</strong> $${totalAmountToDisplay}</p>
+                                <p><strong>Status:</strong> ${order.status}</p>
+                                <h4>Items:</h4>
+                                <ul>
+                                    ${order.orderItems.map(item => `
+                                        <li>
+                                            ${item.product ? item.product.name : 'Unknown Product'} (x${item.quantity}) -
+                                            $${item.priceAtPurchase ? parseFloat(item.priceAtPurchase).toFixed(2) : '0.00'} each
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `;
+                        ordersListDiv.insertAdjacentHTML('beforeend', orderCardHtml);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching user orders:', error);
+                showMessage('Error loading your orders: ' + error.message, 'error'); // <-- Panggilan ini
+            }
+        }
+
+        // Tambahkan fungsi showMessage di sini
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            if (messageDiv) { // <-- Pengecekan null
+                messageDiv.style.display = 'block';
+                messageDiv.className = `message ${type}`;
+                messageDiv.textContent = text;
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000);
+            } else {
+                console.error("Elemen 'message' tidak ditemukan di DOM. Tidak dapat menampilkan pesan.");
+                alert(text); // Fallback jika div tidak ada
+            }
+        }
+    </script>
+</body>
+</html>
