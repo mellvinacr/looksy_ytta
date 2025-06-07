@@ -161,10 +161,11 @@
                 <input type="number" id="newProductPrice" step="0.01" required>
                 <label for="newProductStock">Stock:</label>
                 <input type="number" id="newProductStock" required>
-                <label for="newProductImageUrl">Image URL:</label>
-                <input type="text" id="newProductImageUrl">
-                <button onclick="createProduct()">Submit</button>
-                <button onclick="hideCreateProductForm()" class="cancel">Cancel</button>
+                <label for="newProductImage">Image:</label>
+                <input type="file" id="newProductImage" accept="image/*">
+                
+                <button type="button" onclick="createProduct()">Submit</button>
+                <button type="button" onclick="hideCreateProductForm()" class="cancel">Cancel</button>
                 <div id="createProductMessage" class="message" style="display: none;"></div>
             </div>
 
@@ -196,8 +197,9 @@
                     <input type="number" id="editProductPrice" step="0.01" required>
                     <label for="editProductStock">Stock:</label>
                     <input type="number" id="editProductStock" required>
-                    <label for="editProductImageUrl">Image URL:</label>
-                    <input type="text" id="editProductImageUrl">
+                    <label for="editProductImage">New Image (optional):</label>
+                    <input type="file" id="editProductImage" accept="image/*">
+                    
                     <button onclick="updateProduct()">Save Changes</button>
                     <button onclick="closeEditModal()" class="cancel">Cancel</button>
                     <div id="editProductMessage" class="message" style="display: none;"></div>
@@ -208,19 +210,12 @@
     </div>
 
     <script>
-        const authToken = 'YOUR_ADMIN_BASIC_AUTH_TOKEN'; // GANTI DENGAN BASIC AUTH TOKEN ADMIN
-
         document.addEventListener('DOMContentLoaded', fetchProducts);
 
         async function fetchProducts() {
             try {
-                const response = await fetch('/api/products', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Basic ${authToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+                // Header otorisasi tidak diperlukan lagi karena Spring Security menggunakan session cookie
+                const response = await fetch('/api/products');
 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
@@ -241,10 +236,12 @@
                     row.insertCell().textContent = product.description ? product.description.substring(0, 50) + '...' : '';
                     row.insertCell().textContent = product.price.toFixed(2);
                     row.insertCell().textContent = product.stock;
+                    
+                    // --- LOGIKA MENAMPILKAN GAMBAR DARI BLOB ---
                     const imageCell = row.insertCell();
-                    if (product.imageUrl) {
+                    if (product.imageData) {
                         const img = document.createElement('img');
-                        img.src = product.imageUrl;
+                        img.src = `/api/products/${product.id}/image`; // Endpoint baru untuk memuat gambar
                         img.alt = product.name;
                         img.style.width = '50px';
                         img.style.height = '50px';
@@ -253,10 +250,12 @@
                     } else {
                         imageCell.textContent = 'No Image';
                     }
+                    
                     const actionsCell = row.insertCell();
                     actionsCell.className = 'action-buttons';
+                    // --- MEMPERBAIKI PANGGILAN openEditModal ---
                     actionsCell.innerHTML = `
-                        <button onclick="openEditModal(${product.id}, '${product.name}', '${product.description}', ${product.price}, ${product.stock}, '${product.imageUrl || ''}')">Edit</button>
+                        <button onclick="openEditModal(${product.id}, '${product.name}', '${product.description || ''}', ${product.price}, ${product.stock})">Edit</button>
                         <button class="delete" onclick="deleteProduct(${product.id})">Delete</button>
                     `;
                 });
@@ -273,37 +272,39 @@
 
         function hideCreateProductForm() {
             document.getElementById('createProductForm').style.display = 'none';
-            document.getElementById('createProductForm').querySelectorAll('input, textarea').forEach(input => input.value = '');
-            document.getElementById('createProductMessage').style.display = 'none';
         }
 
+        // --- FUNGSI CREATE PRODUCT DIPERBARUI UNTUK MENGGUNAKAN FORMDATA ---
         async function createProduct() {
-            const name = document.getElementById('newProductName').value;
-            const description = document.getElementById('newProductDescription').value;
-            const price = parseFloat(document.getElementById('newProductPrice').value);
-            const stock = parseInt(document.getElementById('newProductStock').value);
-            const imageUrl = document.getElementById('newProductImageUrl').value;
+            const formData = new FormData();
+            formData.append('name', document.getElementById('newProductName').value);
+            formData.append('description', document.getElementById('newProductDescription').value);
+            formData.append('price', document.getElementById('newProductPrice').value);
+            formData.append('stock', document.getElementById('newProductStock').value);
+
+            const imageInput = document.getElementById('newProductImage');
+            if (imageInput.files.length > 0) {
+                formData.append('image', imageInput.files[0]);
+            }
+            
             const messageDiv = document.getElementById('createProductMessage');
 
             try {
                 const response = await fetch('/api/products', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Basic ${authToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, description, price, stock, imageUrl })
+                    body: formData
                 });
-
-                const data = await response.json();
 
                 if (response.ok) {
                     messageDiv.style.display = 'block';
                     messageDiv.className = 'message success';
                     messageDiv.textContent = 'Product created successfully!';
-                    hideCreateProductForm();
-                    fetchProducts();
+                    setTimeout(() => {
+                        hideCreateProductForm();
+                        fetchProducts();
+                    }, 1000);
                 } else {
+                    const data = await response.json();
                     messageDiv.style.display = 'block';
                     messageDiv.className = 'message error';
                     messageDiv.textContent = data.message || 'Failed to create product.';
@@ -316,52 +317,54 @@
             }
         }
 
-        function openEditModal(id, name, description, price, stock, imageUrl) {
+        // --- FUNGSI OPEN EDIT MODAL DIPERBARUI ---
+        function openEditModal(id, name, description, price, stock) {
             document.getElementById('editProductId').value = id;
             document.getElementById('editProductName').value = name;
             document.getElementById('editProductDescription').value = description;
             document.getElementById('editProductPrice').value = price;
             document.getElementById('editProductStock').value = stock;
-            document.getElementById('editProductImageUrl').value = imageUrl;
+            document.getElementById('editProductImage').value = '';
             document.getElementById('editProductModal').style.display = 'block';
             document.getElementById('editProductMessage').style.display = 'none';
         }
 
         function closeEditModal() {
             document.getElementById('editProductModal').style.display = 'none';
-            document.getElementById('editProductMessage').style.display = 'none';
         }
 
+        // --- FUNGSI UPDATE PRODUCT DIPERBARUI UNTUK MENGGUNAKAN FORMDATA ---
         async function updateProduct() {
             const id = document.getElementById('editProductId').value;
-            const name = document.getElementById('editProductName').value;
-            const description = document.getElementById('editProductDescription').value;
-            const price = parseFloat(document.getElementById('editProductPrice').value);
-            const stock = parseInt(document.getElementById('editProductStock').value);
-            const imageUrl = document.getElementById('editProductImageUrl').value;
             const messageDiv = document.getElementById('editProductMessage');
 
-            const productData = { name, description, price, stock, imageUrl };
+            const formData = new FormData();
+            formData.append('name', document.getElementById('editProductName').value);
+            formData.append('description', document.getElementById('editProductDescription').value);
+            formData.append('price', document.getElementById('editProductPrice').value);
+            formData.append('stock', document.getElementById('editProductStock').value);
+
+            const imageInput = document.getElementById('editProductImage');
+            if (imageInput.files.length > 0) {
+                formData.append('image', imageInput.files[0]);
+            }
 
             try {
                 const response = await fetch(`/api/products/${id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `Basic ${authToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData)
+                    body: formData
                 });
-
-                const data = await response.json();
 
                 if (response.ok) {
                     messageDiv.style.display = 'block';
                     messageDiv.className = 'message success';
                     messageDiv.textContent = 'Product updated successfully!';
-                    closeEditModal();
-                    fetchProducts();
+                    setTimeout(() => {
+                        closeEditModal();
+                        fetchProducts();
+                    }, 1000);
                 } else {
+                    const data = await response.json();
                     messageDiv.style.display = 'block';
                     messageDiv.className = 'message error';
                     messageDiv.textContent = data.message || 'Failed to update product.';
@@ -381,10 +384,7 @@
 
             try {
                 const response = await fetch(`/api/products/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Basic ${authToken}`
-                    }
+                    method: 'DELETE'
                 });
 
                 if (response.ok) {

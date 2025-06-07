@@ -37,7 +37,11 @@ public class ProductService {
         product.setDescription(productDetails.getDescription());
         product.setPrice(productDetails.getPrice());
         product.setStock(productDetails.getStock());
-        product.setImageUrl(productDetails.getImageUrl());
+
+        // Hanya update gambar jika ada gambar baru yang di-upload
+        if (productDetails.getImageData() != null && productDetails.getImageData().length > 0) {
+            product.setImageData(productDetails.getImageData());
+        }
 
         return productRepository.save(product);
     }

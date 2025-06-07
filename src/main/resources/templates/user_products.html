@@ -140,6 +140,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', fetchProducts);
 
+        // --- FUNGSI INI SUDAH DIPERBAIKI ---
         async function fetchProducts() {
             try {
                 const response = await fetch('/api/products');
@@ -156,11 +157,14 @@
                 }
 
                 products.forEach(product => {
-                    // Pastikan product.price di-parse sebagai float untuk toFixed
                     const priceToDisplay = product.price ? parseFloat(product.price).toFixed(2) : '0.00';
+                    
                     const productCard = `
                         <div class="product-card">
-                            <img src="${product.imageUrl || 'https://via.placeholder.com/150'}" alt="${product.name}">
+                            <img src="/api/products/${product.id}/image" 
+                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/150';" 
+                                 alt="${product.name}">
+
                             <h3>${product.name}</h3>
                             <p>${product.description || 'No description available.'}</p>
                             <p class="price">$${priceToDisplay}</p>
@@ -203,7 +207,7 @@
 
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
-            if (messageDiv) { // <-- Pengecekan null
+            if (messageDiv) {
                 messageDiv.style.display = 'block';
                 messageDiv.className = `message ${type}`;
                 messageDiv.textContent = text;
@@ -212,7 +216,7 @@
                 }, 3000);
             } else {
                 console.error("Elemen 'message' tidak ditemukan di DOM. Tidak dapat menampilkan pesan.");
-                alert(text); // Fallback jika div tidak ada
+                alert(text);
             }
         }
     </script>

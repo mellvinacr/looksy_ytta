@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-
 import java.math.BigDecimal;
 
 @Data
@@ -31,6 +30,7 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
 
-    @Column(length = 255)
-    private String imageUrl; // URL to the product image
+    @Lob
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
+    private byte[] imageData;
 }
