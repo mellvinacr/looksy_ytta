@@ -1,6 +1,7 @@
 package com.example.looksy_ytta.config;
 
-import com.example.looksy_ytta.repository.UserRepository;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,9 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import java.util.List;
+import com.example.looksy_ytta.repository.UserRepository;
 
 
 @Configuration
@@ -58,9 +58,9 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/auth/**", "/register", "/login", "/", "/products").permitAll() // Added /products to be accessible
-                .requestMatchers("/admin/**", "/api/admin/**", "/api/products/**").hasRole("ADMIN") // Admin API for products
-                .requestMatchers("/user/**", "/api/cart/**", "/api/orders/checkout", "/api/orders/my-orders").hasRole("USER")   // User API for cart and orders
+                .requestMatchers("/api/auth/**", "/register", "/login", "/", "/products").permitAll()
+                .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/products", "/user/**", "/api/cart/**", "/api/orders/checkout", "/api/orders/my-orders").hasAnyRole("USER", "ADMIN") 
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

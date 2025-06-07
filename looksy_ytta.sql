@@ -30,9 +30,11 @@ CREATE TABLE IF NOT EXISTS `cart_items` (
   KEY `FK1re40cjegsfvw58xrkdp6bac6` (`product_id`),
   CONSTRAINT `FK1re40cjegsfvw58xrkdp6bac6` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
   CONSTRAINT `FK709eickf3kc0dujx3ub9i7btf` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
 
--- Dumping data for table looksy_ytta.cart_items: ~0 rows (approximately)
+-- Dumping data for table looksy_ytta.cart_items: ~1 rows (approximately)
+REPLACE INTO `cart_items` (`quantity`, `id`, `product_id`, `user_id`) VALUES
+	(1, 1, 1, 2);
 
 -- Dumping structure for table looksy_ytta.orders
 CREATE TABLE IF NOT EXISTS `orders` (
@@ -73,12 +75,13 @@ CREATE TABLE IF NOT EXISTS `products` (
   `image_url` varchar(255) COLLATE armscii8_bin DEFAULT NULL,
   `name` varchar(255) COLLATE armscii8_bin NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=armscii8 COLLATE=armscii8_bin;
 
--- Dumping data for table looksy_ytta.products: ~0 rows (approximately)
+-- Dumping data for table looksy_ytta.products: ~3 rows (approximately)
 REPLACE INTO `products` (`price`, `stock`, `id`, `description`, `image_url`, `name`) VALUES
-	(90000.00, 90, 1, 'baju', '', 'baju'),
-	(800.00, 90, 2, 'celana', '', 'celana ');
+	(90000.00, 900, 1, 'baju', '', 'kyrsu'),
+	(800.00, 90, 2, 'celana', NULL, 'celana '),
+	(9000.00, 90, 3, 'kerudung', '', 'kerudung');
 
 -- Dumping structure for table looksy_ytta.users
 CREATE TABLE IF NOT EXISTS `users` (

@@ -1,16 +1,24 @@
 package com.example.looksy_ytta.controller;
 
-import com.example.looksy_ytta.model.CartItem;
-import com.example.looksy_ytta.model.User;
-import com.example.looksy_ytta.service.CartService;
-import com.example.looksy_ytta.repository.UserRepository;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.example.looksy_ytta.model.CartItem;
+import com.example.looksy_ytta.model.User;
+import com.example.looksy_ytta.repository.UserRepository;
+import com.example.looksy_ytta.service.CartService;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -40,7 +48,8 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addProductToCart(@RequestParam Long productId, @RequestParam(defaultValue = "1") int quantity) {
+    public ResponseEntity<?> addProductToCart(@RequestParam Long productId,
+            @RequestParam(defaultValue = "1") int quantity) {
         try {
             User currentUser = getCurrentAuthenticatedUser();
             CartItem cartItem = cartService.addProductToCart(currentUser.getId(), productId, quantity);
@@ -53,11 +62,14 @@ public class CartController {
     @PutMapping("/update/{cartItemId}")
     public ResponseEntity<?> updateCartItemQuantity(@PathVariable Long cartItemId, @RequestParam int quantity) {
         try {
-            CartItem updatedCartItem = cartService.updateCartItemQuantity(cartItemId, quantity);
-            if (updatedCartItem == null) { // Item was removed
+            User currentUser = getCurrentAuthenticatedUser();
+            CartItem updatedCartItem = cartService.updateCartItemQuantity(currentUser.getId(), cartItemId, quantity);
+
+            if (updatedCartItem == null) {
                 return new ResponseEntity<>("Cart item removed due to zero quantity.", HttpStatus.OK);
             }
             return new ResponseEntity<>(updatedCartItem, HttpStatus.OK);
+
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -66,9 +78,15 @@ public class CartController {
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<Void> removeProductFromCart(@PathVariable Long cartItemId) {
         try {
-            cartService.removeProductFromCart(cartItemId);
+            // Dapatkan user yang sedang login dari konteks keamanan
+            User currentUser = getCurrentAuthenticatedUser();
+
+            // Panggil service dengan menyertakan ID user yang sedang login
+            cartService.removeProductFromCart(currentUser.getId(), cartItemId);
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
+            // Ini untuk menangani jika item tidak ditemukan
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

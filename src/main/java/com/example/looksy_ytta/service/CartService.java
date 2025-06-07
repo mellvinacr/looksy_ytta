@@ -20,7 +20,8 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public CartService(CartItemRepository cartItemRepository, ProductRepository productRepository, UserRepository userRepository) {
+    public CartService(CartItemRepository cartItemRepository, ProductRepository productRepository,
+            UserRepository userRepository) {
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
@@ -40,7 +41,8 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
 
         if (product.getStock() < quantity) {
-            throw new RuntimeException("Not enough stock for product: " + product.getName() + ". Available: " + product.getStock());
+            throw new RuntimeException(
+                    "Not enough stock for product: " + product.getName() + ". Available: " + product.getStock());
         }
 
         Optional<CartItem> existingCartItem = cartItemRepository.findByUserAndProduct(user, product);
@@ -49,7 +51,8 @@ public class CartService {
         if (existingCartItem.isPresent()) {
             cartItem = existingCartItem.get();
             if (product.getStock() < cartItem.getQuantity() + quantity) {
-                throw new RuntimeException("Adding " + quantity + " would exceed available stock. Current in cart: " + cartItem.getQuantity() + ", Available: " + product.getStock());
+                throw new RuntimeException("Adding " + quantity + " would exceed available stock. Current in cart: "
+                        + cartItem.getQuantity() + ", Available: " + product.getStock());
             }
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         } else {
@@ -62,27 +65,48 @@ public class CartService {
     }
 
     @Transactional
-    public CartItem updateCartItemQuantity(Long cartItemId, int quantity) {
+    public CartItem updateCartItemQuantity(Long userId, Long cartItemId, int quantity) {
+        // 1. Dapatkan item keranjang dari database
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
 
+        // 2. VALIDASI KEPEMILIKAN (Langkah Kunci!)
+        // Periksa apakah ID pemilik item sama dengan ID user yang sedang login
+        if (!cartItem.getUser().getId().equals(userId)) {
+            throw new SecurityException("Access Denied: You do not own this cart item to update.");
+        }
+
+        // 3. Jika aman, lanjutkan logika bisnis
         Product product = cartItem.getProduct();
         if (product.getStock() < quantity) {
-            throw new RuntimeException("Not enough stock for product: " + product.getName() + ". Available: " + product.getStock());
+            throw new RuntimeException(
+                    "Not enough stock for product: " + product.getName() + ". Available: " + product.getStock());
         }
+
         if (quantity <= 0) {
+            // Jika kuantitas 0 atau kurang, hapus item dari keranjang
             cartItemRepository.delete(cartItem);
-            return null; // Indicate item was removed
+            return null; // Mengindikasikan item telah dihapus
         }
+
         cartItem.setQuantity(quantity);
         return cartItemRepository.save(cartItem);
     }
 
-    public void removeProductFromCart(Long cartItemId) {
-        if (!cartItemRepository.existsById(cartItemId)) {
-            throw new RuntimeException("Cart item not found with id: " + cartItemId);
+    @Transactional
+    public void removeProductFromCart(Long userId, Long cartItemId) {
+        // 1. Dapatkan item keranjang dari database
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
+
+        // 2. VALIDASI KEPEMILIKAN (Langkah Kunci!)
+        if (!cartItem.getUser().getId().equals(userId)) {
+            // Jika ID tidak cocok, lemparkan error keamanan!
+            throw new SecurityException("Access Denied: You do not own this cart item.");
         }
-        cartItemRepository.deleteById(cartItemId);
+
+        // 3. Jika validasi lolos, baru hapus item tersebut
+        cartItemRepository.delete(cartItem);
     }
 
     public void clearCart(Long userId) {

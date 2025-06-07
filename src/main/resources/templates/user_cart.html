@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
             margin: 0;
             padding: 20px;
         }
+
         .header {
             background-color: #007bff;
             color: white;
@@ -24,17 +25,21 @@
             align-items: center;
             margin-bottom: 30px;
         }
+
         .header h1 {
             margin: 0;
             font-size: 2em;
         }
+
         .header .user-info {
             font-size: 1.1em;
         }
+
         .header form {
             display: inline-block;
             margin-left: 20px;
         }
+
         .header button {
             background-color: #dc3545;
             color: white;
@@ -44,28 +49,34 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         .header button:hover {
             background-color: #c82333;
         }
+
         .content {
             background-color: #fff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .cart-items {
             list-style: none;
             padding: 0;
         }
+
         .cart-item {
             display: flex;
             align-items: center;
             border-bottom: 1px solid #eee;
             padding: 15px 0;
         }
+
         .cart-item:last-child {
             border-bottom: none;
         }
+
         .cart-item img {
             width: 80px;
             height: 80px;
@@ -73,21 +84,26 @@
             margin-right: 20px;
             border-radius: 4px;
         }
+
         .item-details {
             flex-grow: 1;
         }
+
         .item-details h3 {
             margin: 0 0 5px 0;
             font-size: 1.2em;
         }
+
         .item-details p {
             margin: 0;
             color: #666;
         }
+
         .item-actions {
             display: flex;
             align-items: center;
         }
+
         .item-actions input {
             width: 50px;
             padding: 5px;
@@ -96,6 +112,7 @@
             border-radius: 4px;
             margin: 0 10px;
         }
+
         .item-actions button {
             background-color: #ffc107;
             color: #333;
@@ -105,19 +122,23 @@
             cursor: pointer;
             margin-left: 5px;
         }
+
         .item-actions button.remove {
             background-color: #dc3545;
             color: white;
         }
+
         .cart-summary {
             margin-top: 30px;
             text-align: right;
             border-top: 2px solid #eee;
             padding-top: 20px;
         }
+
         .cart-summary h2 {
             margin: 0 0 10px 0;
         }
+
         .cart-summary button {
             background-color: #28a745;
             color: white;
@@ -128,20 +149,24 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         .cart-summary button:hover {
             background-color: #218838;
         }
+
         .message {
             margin-top: 15px;
             padding: 10px;
             border-radius: 4px;
             font-weight: bold;
         }
+
         .message.success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .message.error {
             background-color: #f8d7da;
             color: #721c24;
@@ -149,12 +174,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Your Shopping Cart</h1>
         <div class="user-info">
             Welcome, <span sec:authentication="name">User</span>!
-            <a th:href="@{/user/products}" style="color: white; text-decoration: none; margin-left: 20px;">Continue Shopping</a>
+            <a th:href="@{/user/products}" style="color: white; text-decoration: none; margin-left: 20px;">Continue
+                Shopping</a>
             <form th:action="@{/logout}" method="post" style="display: inline;">
                 <button type="submit">Logout</button>
             </form>
@@ -180,17 +207,31 @@
             try {
                 const response = await fetch('/api/cart');
                 if (!response.ok) {
-                    throw new Error('Failed to fetch cart items: ' + response.statusText);
+                    // Tangani kasus ketika response API tidak OK
+                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error('Failed to fetch cart items: ' + (errorData.message || response.statusText));
                 }
                 const cartItems = await response.json();
+
+                // Ambil referensi ke elemen DOM
                 const cartItemsList = document.getElementById('cartItemsList');
+                const emptyCartMessage = document.getElementById('emptyCartMessage');
+                const cartTotalSpan = document.getElementById('cartTotal'); // Ganti nama agar lebih jelas
+
+                // Tambahkan pemeriksaan null untuk semua elemen penting
+                if (!cartItemsList || !emptyCartMessage || !cartTotalSpan) {
+                    console.error("Satu atau lebih elemen DOM penting (cartItemsList, emptyCartMessage, cartTotal) tidak ditemukan.");
+                    showMessage("Error: Elemen halaman tidak sepenuhnya dimuat. Mohon refresh halaman.", "error");
+                    return; // Keluar dari fungsi jika ada elemen yang hilang
+                }
+
                 cartItemsList.innerHTML = '';
                 let total = 0;
 
                 if (cartItems.length === 0) {
-                    document.getElementById('emptyCartMessage').style.display = 'block';
+                    emptyCartMessage.style.display = 'block';
                 } else {
-                    document.getElementById('emptyCartMessage').style.display = 'none';
+                    emptyCartMessage.style.display = 'none';
                     cartItems.forEach(item => {
                         // Pastikan product dan product.price tidak null sebelum diakses
                         // dan parse sebagai float untuk toFixed
@@ -198,16 +239,20 @@
                         const subtotal = price * item.quantity;
                         total += subtotal;
 
+                        const productImageUrl = item.product && item.product.imageUrl ? item.product.imageUrl : 'https://via.placeholder.com/80';
+                        const productName = item.product ? item.product.name : 'Unknown Product';
+                        const productStock = item.product ? item.product.stock : 999;
+
                         const cartItemHtml = `
                             <li class="cart-item">
-                                <img src="${item.product && item.product.imageUrl ? item.product.imageUrl : 'https://via.placeholder.com/80'}" alt="${item.product ? item.product.name : 'Unknown Product'}">
+                                <img src="${productImageUrl}" alt="${productName}">
                                 <div class="item-details">
-                                    <h3>${item.product ? item.product.name : 'Unknown Product'}</h3>
+                                    <h3>${productName}</h3>
                                     <p>$${price.toFixed(2)} each</p>
                                     <p>Subtotal: $${subtotal.toFixed(2)}</p>
                                 </div>
                                 <div class="item-actions">
-                                    <input type="number" value="${item.quantity}" min="1" max="${item.product ? item.product.stock : 999}" onchange="updateCartItemQuantity(${item.id}, this.value)">
+                                    <input type="number" value="${item.quantity}" min="1" max="${productStock}" onchange="updateCartItemQuantity(${item.id}, this.value)">
                                     <button class="remove" onclick="removeCartItem(${item.id})">Remove</button>
                                 </div>
                             </li>
@@ -215,10 +260,10 @@
                         cartItemsList.insertAdjacentHTML('beforeend', cartItemHtml);
                     });
                 }
-                document.getElementById('cartTotal').textContent = total.toFixed(2);
+                cartTotalSpan.textContent = total.toFixed(2); // Gunakan variabel yang baru
             } catch (error) {
                 console.error('Error fetching cart items:', error);
-                showMessage('Error loading cart: ' + error.message, 'error'); // <-- Panggilan ini
+                showMessage('Error loading cart: ' + error.message, 'error');
             }
         }
 
@@ -291,7 +336,7 @@
                 }
             } catch (error) {
                 console.error('Error during checkout:', error);
-                showMessage('An unexpected error occurred during checkout. Please try again later.', 'error');
+                showMessage('An unexpected error occurred.', 'error');
             }
         }
 
@@ -311,4 +356,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -1,19 +1,28 @@
 package com.example.looksy_ytta.controller;
 
-import com.example.looksy_ytta.model.Order;
-import com.example.looksy_ytta.model.OrderStatus;
-import com.example.looksy_ytta.model.User;
-import com.example.looksy_ytta.service.OrderService;
-import com.example.looksy_ytta.repository.UserRepository;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.looksy_ytta.model.Order;
+import com.example.looksy_ytta.model.OrderStatus;
+import com.example.looksy_ytta.model.User;
+import com.example.looksy_ytta.repository.UserRepository;
+import com.example.looksy_ytta.service.OrderService;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -44,7 +53,9 @@ public class OrderController {
             Order order = orderService.placeOrder(currentUser.getId());
             return new ResponseEntity<>(order, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -82,19 +93,24 @@ public class OrderController {
             Order updatedOrder = orderService.updateOrderStatus(id, status);
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
 
     // Admin: Delete order
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    // Perubahan dilakukan di sini: dari ResponseEntity<Void> menjadi ResponseEntity<?>
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
         try {
             orderService.deleteOrder(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
 }
