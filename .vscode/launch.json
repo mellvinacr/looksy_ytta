@@ -1,0 +1,14 @@
+{
+     "configurations": [
+          {
+               "type": "java",
+               "name": "Spring Boot-LooksyYttaApplication<looksy_ytta>",
+               "request": "launch",
+               "cwd": "${workspaceFolder}",
+               "mainClass": "com.example.looksy_ytta.LooksyYttaApplication",
+               "projectName": "looksy_ytta",
+               "args": "",
+               "envFile": "${workspaceFolder}/.env"
+          }
+     ]
+}
