@@ -172,6 +172,25 @@
             color: #7a9e7f;
             font-size: 1.1rem;
         }
+
+        .password-input-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7a9e7f;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #d4a017;
+        }
         
         input[type="text"],
         input[type="password"],
@@ -185,6 +204,10 @@
             color: #3a5a40;
             background: #f9f9f9;
         }
+
+        input[type="password"] {
+            padding-right: 55px;
+        }
         
         input[type="text"]:focus,
         input[type="password"]:focus,
@@ -193,6 +216,72 @@
             background: #fff;
             box-shadow: 0 5px 15px rgba(212, 160, 23, 0.1);
             outline: none;
+        }
+
+        /* Password Strength Styles */
+        .password-strength {
+            margin-top: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .strength-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .strength-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #3a5a40;
+        }
+
+        .strength-status {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .strength-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .requirements-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .requirement.met {
+            color: #28a745;
+        }
+
+        .requirement i {
+            margin-right: 6px;
+            font-size: 0.7rem;
         }
         
         button {
@@ -298,6 +387,10 @@
             .register-section {
                 padding: 40px 30px;
             }
+
+            .requirements-list {
+                grid-template-columns: 1fr;
+            }
         }
         
         @media (max-width: 480px) {
@@ -373,7 +466,43 @@
                     
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <div class="password-input-container">
+                            <input type="password" id="password" name="password" placeholder="Password" required>
+                            <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                        </div>
+                        
+                        <!-- Password Strength Indicator -->
+                        <div id="passwordStrength" class="password-strength" style="display: none;">
+                            <div class="strength-header">
+                                <span class="strength-label">Kekuatan Password:</span>
+                                <span class="strength-status" id="strengthStatus"></span>
+                            </div>
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="requirements-list">
+                                <div class="requirement" id="req-length">
+                                    <i class="fas fa-times"></i>
+                                    <span>Minimal 8 karakter</span>
+                                </div>
+                                <div class="requirement" id="req-lowercase">
+                                    <i class="fas fa-times"></i>
+                                    <span>Huruf kecil (a-z)</span>
+                                </div>
+                                <div class="requirement" id="req-uppercase">
+                                    <i class="fas fa-times"></i>
+                                    <span>Huruf besar (A-Z)</span>
+                                </div>
+                                <div class="requirement" id="req-number">
+                                    <i class="fas fa-times"></i>
+                                    <span>Angka (0-9)</span>
+                                </div>
+                                <div class="requirement" id="req-special">
+                                    <i class="fas fa-times"></i>
+                                    <span>Karakter khusus (!@#$%)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <button type="submit">Create Account</button>
@@ -386,15 +515,127 @@
                 </div>
                 
                 <div class="footer">
-                    &copy; 2023 Furni. All rights reserved.
+                    &copy; 2025 Looksy. All rights reserved.
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Password visibility toggle
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle eye icon
+            if (type === 'password') {
+                passwordToggle.classList.remove('fa-eye-slash');
+                passwordToggle.classList.add('fa-eye');
+            } else {
+                passwordToggle.classList.remove('fa-eye');
+                passwordToggle.classList.add('fa-eye-slash');
+            }
+        });
+
+        // Password strength checker
+        function calculatePasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            const score = Object.values(requirements).filter(Boolean).length;
+            
+            let label = '';
+            let color = '';
+            let percentage = 0;
+
+            if (password.length === 0) {
+                label = '';
+                color = '';
+                percentage = 0;
+            } else if (score < 2) {
+                label = 'Sangat Lemah';
+                color = '#dc3545';
+                percentage = 20;
+            } else if (score < 3) {
+                label = 'Lemah';
+                color = '#fd7e14';
+                percentage = 40;
+            } else if (score < 4) {
+                label = 'Sedang';
+                color = '#ffc107';
+                percentage = 60;
+            } else if (score < 5) {
+                label = 'Kuat';
+                color = '#28a745';
+                percentage = 80;
+            } else {
+                label = 'Sangat Kuat';
+                color = '#198754';
+                percentage = 100;
+            }
+
+            return { requirements, label, color, percentage };
+        }
+
+        function updatePasswordStrength() {
+            const password = passwordInput.value;
+            const strengthContainer = document.getElementById('passwordStrength');
+            const strengthStatus = document.getElementById('strengthStatus');
+            const strengthFill = document.getElementById('strengthFill');
+
+            if (password.length === 0) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+
+            strengthContainer.style.display = 'block';
+            const strength = calculatePasswordStrength(password);
+
+            // Update status and bar
+            strengthStatus.textContent = strength.label;
+            strengthStatus.style.color = strength.color;
+            strengthFill.style.width = strength.percentage + '%';
+            strengthFill.style.backgroundColor = strength.color;
+
+            // Update requirements
+            const requirements = [
+                { id: 'req-length', met: strength.requirements.length },
+                { id: 'req-lowercase', met: strength.requirements.lowercase },
+                { id: 'req-uppercase', met: strength.requirements.uppercase },
+                { id: 'req-number', met: strength.requirements.number },
+                { id: 'req-special', met: strength.requirements.special }
+            ];
+
+            requirements.forEach(req => {
+                const element = document.getElementById(req.id);
+                const icon = element.querySelector('i');
+                
+                if (req.met) {
+                    element.classList.add('met');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-check');
+                } else {
+                    element.classList.remove('met');
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-times');
+                }
+            });
+        }
+
+        // Add event listener for password input
+        passwordInput.addEventListener('input', updatePasswordStrength);
+
+        // Original form submission logic
         document.getElementById('registerForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Mencegah form dari submit default
+            event.preventDefault();
 
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
@@ -416,9 +657,10 @@
                     messageDiv.style.display = 'block';
                     messageDiv.className = 'message success';
                     messageDiv.textContent = 'Registration successful! You can now log in.';
-                    document.getElementById('registerForm').reset(); // Reset form
+                    document.getElementById('registerForm').reset();
+                    document.getElementById('passwordStrength').style.display = 'none';
                     setTimeout(() => {
-                        window.location.href = '/login'; // Redirect to login page
+                        window.location.href = '/login';
                     }, 2000);
                 } else {
                     messageDiv.style.display = 'block';

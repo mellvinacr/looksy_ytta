@@ -19,6 +19,11 @@
             --danger: #dc3545;
             --success: #28a745;
             --warning: #ffc107;
+            --gradient-primary: linear-gradient(135deg, #3a5a40 0%, #2d4a32 100%);
+            --gradient-secondary: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 20px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
         
         * {
@@ -40,29 +45,43 @@
             min-height: 100vh;
         }
         
-        /* Sidebar Styles */
+        /* Enhanced Sidebar Styles */
         .sidebar {
             width: 280px;
-            background: linear-gradient(to bottom, var(--primary-color), #2d4a32);
+            background: var(--gradient-primary);
             color: var(--white);
             padding: 30px 20px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-heavy);
             position: fixed;
             height: 100vh;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
         .logo {
             text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--secondary-color);
         }
         
         .logo h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
         }
         
         .logo span {
@@ -70,40 +89,60 @@
         }
         
         .logo p {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             opacity: 0.8;
-            margin-top: 5px;
+            font-weight: 300;
         }
         
         .nav-menu {
-            margin-top: 30px;
+            margin-top: 40px;
         }
         
         .nav-item {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             position: relative;
         }
         
         .nav-item a {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 16px 20px;
             color: var(--white);
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            opacity: 0.9;
+            opacity: 0.85;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-item a:hover::before {
+            left: 100%;
         }
         
         .nav-item a:hover, .nav-item a.active {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             opacity: 1;
+            transform: translateX(5px);
+            box-shadow: var(--shadow-light);
         }
         
         .nav-item i {
-            margin-right: 12px;
-            font-size: 1.1rem;
-            width: 20px;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            width: 24px;
             text-align: center;
         }
         
@@ -114,17 +153,20 @@
             right: 20px;
             display: flex;
             align-items: center;
-            padding: 15px 10px;
+            padding: 20px 15px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .user-profile img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 12px;
             object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .user-info small {
@@ -134,42 +176,76 @@
             margin-top: 3px;
         }
         
-        /* Main Content Styles */
+        /* Enhanced Main Content Styles */
         .main-content {
             flex: 1;
             margin-left: 280px;
-            padding: 30px;
+            padding: 40px;
+            min-height: 100vh;
         }
         
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(58, 90, 64, 0.1);
         }
         
         .header h2 {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             color: var(--primary-color);
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
         }
         
         .user-actions {
             display: flex;
             align-items: center;
+            gap: 20px;
         }
         
         .logout-btn {
-            background: var(--secondary-color);
+            background: var(--gradient-secondary);
             color: var(--white);
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
-            margin-left: 15px;
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .logout-btn:hover::before {
+            left: 100%;
         }
         
         .logout-btn i {
@@ -177,251 +253,268 @@
         }
         
         .logout-btn:hover {
-            background: #b8860b;
+            background: linear-gradient(135deg, #b8860b 0%, #9a7209 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 160, 23, 0.3);
+            box-shadow: var(--shadow-medium);
         }
         
-        /* Dashboard Cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+        /* Perfected Welcome Section */
+        .welcome-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(58, 90, 64, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-secondary);
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
             margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
         }
         
-        .card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .card-icon {
-            width: 50px;
-            height: 50px;
+        .welcome-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(58, 90, 64, 0.1) 0%, transparent 70%);
             border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .welcome-title {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-weight: 400;
+        }
+        
+        /* Enhanced Quick Actions Grid */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .action-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+            border-radius: 16px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 1px solid rgba(58, 90, 64, 0.08);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(58, 90, 64, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        
+        .action-card:hover::before {
+            left: 100%;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--secondary-color);
+        }
+        
+        .action-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(58, 90, 64, 0.1) 0%, rgba(58, 90, 64, 0.05) 100%);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .card-icon.users {
-            background: rgba(58, 90, 64, 0.1);
+            margin: 0 auto 25px;
+            font-size: 2.2rem;
             color: var(--primary-color);
-        }
-        
-        .card-icon.products {
-            background: rgba(212, 160, 23, 0.1);
-            color: var(--secondary-color);
-        }
-        
-        .card-icon.orders {
-            background: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-        }
-        
-        .card-icon.revenue {
-            background: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-        }
-        
-        .card h3 {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            margin-bottom: 5px;
-        }
-        
-        .card h2 {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-        
-        .card p {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        
-        /* Content Box */
-        .content-box {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-        
-        .content-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .content-header h3 {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-        }
-        
-        .action-btn {
-            background: var(--secondary-color);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
+            position: relative;
         }
         
-        .action-btn:hover {
-            background: #b8860b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 160, 23, 0.3);
+        .action-card:hover .action-icon {
+            background: var(--gradient-primary);
+            color: var(--white);
+            transform: scale(1.1);
+            box-shadow: var(--shadow-medium);
         }
         
-        /* Table Styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            background-color: #f9f9f9;
+        .action-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
             color: var(--primary-color);
             font-weight: 600;
         }
         
-        tr:hover {
-            background-color: #f5f5f5;
+        .action-card p {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            font-weight: 400;
         }
         
-        .action-buttons {
-            display: flex;
-            gap: 10px;
+        /* Enhanced Management Section */
+        .management-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(58, 90, 64, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
         
-        .edit-btn, .delete-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
+        .management-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        .management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .management-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
             transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(58, 90, 64, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .management-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--secondary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .management-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .management-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .management-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(58, 90, 64, 0.1);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-        }
-        
-        .edit-btn {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .delete-btn {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .edit-btn:hover, .delete-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        .edit-btn i, .delete-btn i {
-            margin-right: 5px;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
             color: var(--primary-color);
-            font-weight: 500;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
             transition: all 0.3s ease;
         }
         
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2);
-            outline: none;
+        .management-card:hover .management-icon {
+            background: var(--primary-color);
+            color: var(--white);
+            transform: scale(1.1);
         }
         
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .management-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 600;
         }
         
-        .cancel-btn {
-            background-color: #6c757d;
-            color: white;
+        .management-card p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            line-height: 1.5;
         }
         
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            display: none;
-        }
-        
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        /* Responsive Styles */
+        /* Responsive Enhancements */
         @media (max-width: 992px) {
             .sidebar {
                 width: 240px;
@@ -430,7 +523,15 @@
             
             .main-content {
                 margin-left: 240px;
-                padding: 20px;
+                padding: 30px 20px;
+            }
+            
+            .welcome-container {
+                padding: 40px 30px;
+            }
+            
+            .welcome-title {
+                font-size: 2.4rem;
             }
         }
         
@@ -451,12 +552,12 @@
             
             .nav-item i {
                 margin-right: 0;
-                font-size: 1.3rem;
+                font-size: 1.4rem;
             }
             
             .user-profile {
                 justify-content: center;
-                padding: 10px;
+                padding: 15px 10px;
             }
             
             .user-profile img {
@@ -465,40 +566,75 @@
             
             .main-content {
                 margin-left: 70px;
+                padding: 20px 15px;
             }
             
-            .dashboard-cards {
-                grid-template-columns: 1fr 1fr;
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .welcome-subtitle {
+                font-size: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
         }
         
         @media (max-width: 576px) {
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
             .header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 20px;
             }
             
             .user-actions {
-                margin-top: 15px;
                 width: 100%;
-                justify-content: space-between;
+                justify-content: center;
             }
             
-            .modal-content {
-                width: 95%;
-                margin: 20% auto;
-                padding: 20px;
+            .welcome-container {
+                padding: 30px 20px;
+            }
+            
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .management-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .fade-in-delay-1 { animation-delay: 0.1s; }
+        .fade-in-delay-2 { animation-delay: 0.2s; }
+        .fade-in-delay-3 { animation-delay: 0.3s; }
+        .fade-in-delay-4 { animation-delay: 0.4s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
+        <!-- Enhanced Sidebar -->
         <div class="sidebar">
             <div class="logo">
                 <h1>Look<span>Sy</span></h1>
@@ -507,7 +643,7 @@
             
             <div class="nav-menu">
                 <div class="nav-item">
-                    <a th:href="@{/admin/dashboard}" >
+                    <a th:href="@{/admin/dashboard}" class="active">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
@@ -536,16 +672,16 @@
                 <img src="https://ui-avatars.com/api/?name=Admin&background=3a5a40&color=fff" alt="Admin">
                 <div class="user-info">
                     <strong sec:authentication="name">Admin</strong>
+                    <small>Administrator</small>
                 </div>
             </div>
         </div>
         
-        <!-- Main Content -->
+        <!-- Enhanced Main Content -->
         <div class="main-content">
             <div class="header">
-                <h2>Dashboard Overview</h2>
+                <h2>Dashboard</h2>
                 <div class="user-actions">
-                    <span>Welcome back, <strong sec:authentication="name">Admin</strong></span>
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="logout-btn">
                             <i class="fas fa-sign-out-alt"></i>
@@ -555,95 +691,148 @@
                 </div>
             </div>
             
-            <!-- Dashboard Cards -->
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h3>Total Users</h3>
-                            <h2>1,254</h2>
-                        </div>
-                        <div class="card-icon users">
-                            <i class="fas fa-users"></i>
-                        </div>
+            <!-- Perfected Welcome Section -->
+            <div class="welcome-container fade-in">
+                <div class="welcome-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h2 class="welcome-title">Selamat Datang di Dashboard Admin</h2>
+                <p class="welcome-subtitle">
+                    Kelola sistem Looksy dengan mudah dan efisien. Dashboard ini dirancang untuk memberikan Anda kontrol penuh atas semua aspek platform dengan antarmuka yang intuitif dan modern.
+                </p>
+            </div>
+            
+            <!-- Enhanced Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-card fade-in fade-in-delay-1" onclick="location.href='/admin/user'">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <p><i class="fas fa-arrow-up" style="color: var(--success);"></i> 12% from last month</p>
+                    <h3>Kelola Pengguna</h3>
+                    <p>Lihat, tambah, edit, dan kelola semua pengguna sistem dengan mudah</p>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h3>Total Products</h3>
-                            <h2>568</h2>
-                        </div>
-                        <div class="card-icon products">
-                            <i class="fas fa-box-open"></i>
-                        </div>
+                <div class="action-card fade-in fade-in-delay-2" onclick="location.href='/admin/products'">
+                    <div class="action-icon">
+                        <i class="fas fa-box-open"></i>
                     </div>
-                    <p><i class="fas fa-arrow-up" style="color: var(--success);"></i> 8% from last month</p>
+                    <h3>Kelola Produk</h3>
+                    <p>Kelola katalog produk, inventaris, dan informasi produk secara komprehensif</p>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h3>Total Orders</h3>
-                            <h2>2,341</h2>
-                        </div>
-                        <div class="card-icon orders">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
+                <div class="action-card fade-in fade-in-delay-3" onclick="location.href='/admin/orders'">
+                    <div class="action-icon">
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <p><i class="fas fa-arrow-down" style="color: var(--danger);"></i> 3% from last month</p>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <h3>Total Revenue</h3>
-                            <h2>$48,257</h2>
-                        </div>
-                        <div class="card-icon revenue">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                    </div>
-                    <p><i class="fas fa-arrow-up" style="color: var(--success);"></i> 15% from last month</p>
+                    <h3>Kelola Pesanan</h3>
+                    <p>Pantau, proses, dan kelola semua pesanan pelanggan dengan efisien</p>
                 </div>
             </div>
             
-            <!-- User Management Section -->
-
+            <!-- Enhanced Management Section -->
+            <div class="management-section fade-in fade-in-delay-4">
+                <div class="section-header">
+                    <h3 class="section-title">Pusat Manajemen</h3>
+                    <p class="section-subtitle">
+                        Akses cepat ke semua fitur manajemen utama untuk mengoptimalkan operasional platform Looksy
+                    </p>
+                </div>
+                
+                <div class="management-grid">
+                    <div class="management-card" onclick="location.href='/admin/analytics'">
+                        <div class="management-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Analytics</h4>
+                        <p>Pantau performa dan statistik platform secara real-time</p>
+                    </div>
+                    
+                    <div class="management-card" onclick="location.href='/admin/settings'">
+                        <div class="management-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h4>Pengaturan</h4>
+                        <p>Konfigurasi sistem dan preferensi platform</p>
+                    </div>
+                    
+                    <div class="management-card" onclick="location.href='/admin/security'">
+                        <div class="management-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Keamanan</h4>
+                        <p>Kelola keamanan sistem dan akses pengguna</p>
+                    </div>
+                    
+                    <div class="management-card" onclick="location.href='/admin/backup'">
+                        <div class="management-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h4>Backup</h4>
+                        <p>Kelola backup data dan pemulihan sistem</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
     <script>
-
-        const authToken = 'YOUR_ADMIN_BASIC_AUTH_TOKEN';
-        document.addEventListener('DOMContentLoaded', fetchUsers);
-
-        async function fetchUsers() {
-            try {
-                const response = await fetch('/api/admin/users', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Basic ${authToken}`,
-                        'Content-Type': 'application/json'
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced animation system
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
                     }
                 });
-
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        alert('Unauthorized. Please log in as an admin.');
-                        window.location.href = '/login';
+            }, observerOptions);
+            
+            // Observe all fade-in elements
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+            
+            // Enhanced hover effects for action cards
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Enhanced hover effects for management cards
+            document.querySelectorAll('.management-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
-                    throw new Error('Failed to fetch users: ' + response.statusText);
-                }
-
-            } catch (error) {
-                console.error('Error fetching users:', error);
-                alert('Error loading user data: ' + error.message);
-            }
-        }
-
+                });
+            });
+        });
     </script>
 </body>
 </html>
